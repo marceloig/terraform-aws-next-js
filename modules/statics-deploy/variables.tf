@@ -103,6 +103,11 @@ variable "tags_s3_bucket" {
   default = {}
 }
 
+variable "s3_bucket_log_id" {
+  type = string
+  default = null
+}
+
 #######
 # Debug
 #######

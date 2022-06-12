@@ -7,6 +7,17 @@ resource "aws_cloudfront_distribution" "distribution" {
   default_root_object = var.cloudfront_default_root_object
   web_acl_id          = var.cloudfront_webacl_id
 
+  dynamic "logging_config" {
+    for_each = var.cloudfront_logging_config != null ? [true] : []
+
+    content {
+      include_cookies = logging_config.value["include_cookies"]
+      bucket          = logging_config.value["bucket"]
+      prefix          = logging_config.value["prefix"]
+    }
+    
+  }
+
   # Add CloudFront origins
   dynamic "origin" {
     for_each = var.cloudfront_origins

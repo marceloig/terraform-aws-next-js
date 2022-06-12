@@ -51,6 +51,11 @@ variable "cloudfront_webacl_id" {
   default     = null
 }
 
+variable "cloudfront_logging_config" {
+  type    = any
+  default = null
+}
+
 ##########
 # Labeling
 ##########

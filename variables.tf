@@ -166,6 +166,12 @@ variable "tags_s3_bucket" {
   default     = {}
 }
 
+variable "s3_bucket_log_external_id"{
+  description = "S3 Bucket log name to associate with S3 buckets"
+  type        = string
+  default     = null
+}
+
 ################
 # Debug Settings
 ################

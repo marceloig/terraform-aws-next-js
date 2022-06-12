@@ -1,5 +1,9 @@
 data "aws_region" "current" {}
 
+data "aws_s3_bucket" "s3_logs" {
+  bucket = var.s3_bucket_log_external_id
+}
+
 ##########
 # DynamoDB
 ##########
@@ -240,6 +244,8 @@ module "statics_deploy" {
   deployment_name = var.deployment_name
   tags            = var.tags
   tags_s3_bucket  = var.tags_s3_bucket
+  
+  s3_bucket_log_id = var.s3_bucket_log_external_id
 
   debug_use_local_packages = var.debug_use_local_packages
   tf_next_module_root      = path.module
@@ -507,6 +513,18 @@ locals {
       response_page_path    = "/404"
     }
   }
+
+  _cloudfront_logging_config = {
+    include_cookies = true
+    bucket          = data.aws_s3_bucket.s3_logs.bucket_domain_name
+    prefix          = var.deployment_name
+    
+  }
+
+  cloudfront_logging_config = {
+    for key, logging in local._cloudfront_logging_config : key => logging
+    if var.create_cloudfront_log
+  }
 }
 
 module "cloudfront_main" {
@@ -525,6 +543,7 @@ module "cloudfront_main" {
   cloudfront_default_behavior        = local.cloudfront_default_behavior
   cloudfront_ordered_cache_behaviors = local.cloudfront_ordered_cache_behaviors
   cloudfront_custom_error_response   = local.cloudfront_custom_error_response
+  cloudfront_logging_config          = local.cloudfront_logging_config
 
   deployment_name = var.deployment_name
   tags            = var.tags
