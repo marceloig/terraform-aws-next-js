@@ -8,7 +8,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   web_acl_id          = var.cloudfront_webacl_id
 
   dynamic "logging_config" {
-    for_each = var.cloudfront_logging_config != null ? [true] : []
+    for_each = var.cloudfront_logging_config
 
     content {
       include_cookies = logging_config.value["include_cookies"]

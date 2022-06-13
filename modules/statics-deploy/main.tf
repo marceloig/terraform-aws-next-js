@@ -11,6 +11,14 @@ resource "aws_s3_bucket" "static_upload" {
   bucket_prefix = "${var.deployment_name}-tfn-deploy"
   force_destroy = true
 
+  dynamic "logging" {
+    for_each = var.s3_bucket_log_id != null ? [1] : []
+    content {
+      target_bucket = var.s3_bucket_log_id
+      target_prefix = "${var.deployment_name}-tfn-deploy"
+    }
+  }
+
   tags = merge(var.tags, var.tags_s3_bucket)
 }
 
@@ -38,18 +46,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static_upload" {
   }
 }
 
-resource "aws_s3_bucket_logging" "static_upload" {
-  count = var.s3_bucket_log_id != null ? 1 : 0
-  
-  bucket = aws_s3_bucket.static_upload.id
-
-  target_bucket = var.s3_bucket_log_id
-  target_prefix = "${var.deployment_name}-tfn-deploy/logs/"
-
-  depends_on = [
-    aws_s3_bucket.static_upload
-  ]
-}
 
 #########################
 # Serve Bucket (unzipped)
@@ -58,6 +54,14 @@ resource "aws_s3_bucket_logging" "static_upload" {
 resource "aws_s3_bucket" "static_deploy" {
   bucket_prefix = "${var.deployment_name}-tfn-static"
   force_destroy = true
+
+  dynamic "logging" {
+    for_each = var.s3_bucket_log_id != null ? [1] : []
+    content {
+      target_bucket = var.s3_bucket_log_id
+      target_prefix = "${var.deployment_name}-tfn-static"
+    }
+  }
 
   tags = merge(var.tags, var.tags_s3_bucket)
 }
@@ -75,19 +79,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static_deploy" {
       sse_algorithm = "AES256"
     }
   }
-}
-
-resource "aws_s3_bucket_logging" "static_deploy" {
-  count = var.s3_bucket_log_id != null ? 1 : 0
-  
-  bucket = aws_s3_bucket.static_upload.id
-
-  target_bucket = var.s3_bucket_log_id
-  target_prefix = "${var.deployment_name}-tfn-static/logs/"
-
-  depends_on = [
-    aws_s3_bucket.static_deploy
-  ]
 }
 
 # CloudFront permissions for the bucket

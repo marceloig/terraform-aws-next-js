@@ -1,10 +1,5 @@
 data "aws_region" "current" {}
 
-data "aws_s3_bucket" "s3_logs" {
-  count  = var.s3_bucket_log_external_id != null ? 1 : 0
-  
-  bucket = var.s3_bucket_log_external_id
-}
 
 ##########
 # DynamoDB
@@ -517,13 +512,14 @@ locals {
   }
 
   _cloudfront_logging_config = {
-    include_cookies = true
-    bucket          = try(data.aws_s3_bucket.s3_logs[0].bucket_domain_name, null)
-    prefix          = var.deployment_name
-    
+    logging = {
+      include_cookies = true
+      bucket          = var.cloudfront_bucket_domain_name
+      prefix          = var.deployment_name
+    }
   }
 
-  cloudfront_logging_config = var.s3_bucket_log_external_id != null ? local._cloudfront_logging_config : null
+  cloudfront_logging_config = var.s3_bucket_log_external_id != null ? local._cloudfront_logging_config : {}
 }
 
 module "cloudfront_main" {

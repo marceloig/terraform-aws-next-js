@@ -140,10 +140,10 @@ variable "cloudfront_webacl_id" {
   default     = null
 }
 
-variable "create_cloudfront_log" {
-  description = "Controls whether the main CloudFront distribution should create log to S3."
-  type        = bool
-  default     = false
+variable "cloudfront_bucket_domain_name" {
+  description = "S3 bucket domain name to use in CloudFront Logs "
+  type        = string
+  default     = null
 }
 
 ##########
