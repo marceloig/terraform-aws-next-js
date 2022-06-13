@@ -1,6 +1,8 @@
 data "aws_region" "current" {}
 
 data "aws_s3_bucket" "s3_logs" {
+  count  = var.s3_bucket_log_external_id != null ? 1 : 0
+  
   bucket = var.s3_bucket_log_external_id
 }
 
@@ -516,15 +518,12 @@ locals {
 
   _cloudfront_logging_config = {
     include_cookies = true
-    bucket          = data.aws_s3_bucket.s3_logs.bucket_domain_name
+    bucket          = try(data.aws_s3_bucket.s3_logs[0].bucket_domain_name, null)
     prefix          = var.deployment_name
     
   }
 
-  cloudfront_logging_config = {
-    for key, logging in local._cloudfront_logging_config : key => logging
-    if var.create_cloudfront_log
-  }
+  cloudfront_logging_config = var.s3_bucket_log_external_id != null ? local._cloudfront_logging_config : null
 }
 
 module "cloudfront_main" {

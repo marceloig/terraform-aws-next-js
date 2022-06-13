@@ -104,7 +104,7 @@ variable "tags_s3_bucket" {
 }
 
 variable "s3_bucket_log_id" {
-  type = string
+  type    = string
   default = null
 }
 

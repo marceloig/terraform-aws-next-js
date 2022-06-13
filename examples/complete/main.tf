@@ -20,8 +20,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+module "log_storage" {
+  source = "cloudposse/s3-log-storage/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+  name                     = "logs"
+  stage                    = "test"
+  namespace                = "solvimm"
+  acl                      = "log-delivery-write"
+  standard_transition_days = 30
+  glacier_transition_days  = 60
+  expiration_days          = 90
+}
+
 module "tf_next" {
-  source = "milliHQ/next-js/aws"
+  # source = "milliHQ/next-js/aws"
 
   deployment_name = "tf-next-example-complete"
 
@@ -30,8 +43,14 @@ module "tf_next" {
   }
 
   # Uncomment when using in the cloned monorepo for tf-next development
-  # source = "../.."
-  # debug_use_local_packages = true
+  source = "../.."
+  debug_use_local_packages  = false
+  s3_bucket_log_external_id = module.log_storage.bucket_id
+
+  depends_on = [
+    module.log_storage
+  ]
+
 }
 
 output "cloudfront_domain_name" {
